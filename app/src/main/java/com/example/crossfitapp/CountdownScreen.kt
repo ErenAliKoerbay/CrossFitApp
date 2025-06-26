@@ -1,5 +1,6 @@
 package com.example.crossfitapp.ui
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.crossfitapp.R
 import com.example.crossfitapp.Session
 import com.example.crossfitapp.fitnessOptions
 import com.example.crossfitapp.formatTime
@@ -29,6 +31,13 @@ fun CountdownScreen(
     var isRunning by remember { mutableStateOf(true) }
     var isBreakTime by remember { mutableStateOf(false) }
     var actualLabel by remember { mutableStateOf(sessions[0].label) }
+
+    val context = LocalContext.current
+    fun playBeep() {
+        val player = MediaPlayer.create(context, R.raw.beep_sound)
+        player?.setOnCompletionListener { it.release() }
+        player?.start()
+    }
 
     val exercisesCompleted = remember(currentIndex, isBreakTime) {
         if (isBreakTime) currentIndex + 1 else currentIndex
@@ -52,10 +61,16 @@ fun CountdownScreen(
             sessions[currentIndex].remainingSeconds
         }
 
+        // Sound am Anfang der Phase
+        playBeep()
+
         while (remainingSeconds > 0 && isRunning) {
             delay(1000)
             remainingSeconds--
         }
+
+        // Sound am Ende der Phase
+        playBeep()
 
         if (remainingSeconds == 0) {
             if (isBreakTime) {
@@ -79,7 +94,7 @@ fun CountdownScreen(
             .background(Color.Gray),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Alle Inhalte, die oben stehen sollen
+        // Dynamischer Bereich oben
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -102,17 +117,24 @@ fun CountdownScreen(
             }
 
             val imageName = actualLabel.lowercase().replace(" ", "_")
-            val context = LocalContext.current
             val imageResId = remember(imageName, context) {
                 context.resources.getIdentifier(imageName, "drawable", context.packageName)
             }
 
             if (imageResId != 0 && !isBreakTime) {
-                Box(
+                Text(
+                    text = formatTime(remainingSeconds),
+                    fontSize = 110.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(320.dp),
-                    contentAlignment = Alignment.BottomCenter
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
                         painter = painterResource(id = imageResId),
@@ -137,44 +159,38 @@ fun CountdownScreen(
                         modifier = Modifier
                             .background(Color(0xAA000000))
                             .padding(8.dp)
+                            .fillMaxWidth()
                     )
                 }
             }
 
-            Text(
-                text = formatTime(remainingSeconds),
-                fontSize = 110.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Completed $exercisesCompleted of ${sessions.size} exercises",
-                    color = Color.White,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                LinearProgressIndicator(
-                    progress = exercisesCompleted / sessions.size.toFloat(),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp),
-                    color = Color.Cyan,
-                    trackColor = Color.DarkGray
-                )
-            }
+            Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Button immer ganz unten – wie im SetupScreen
+        // Statischer Fortschrittsbereich
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Completed $exercisesCompleted of ${sessions.size} exercises",
+                color = Color.White,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            LinearProgressIndicator(
+                progress = exercisesCompleted / sessions.size.toFloat(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = Color.Cyan,
+                trackColor = Color.DarkGray
+            )
+        }
+
+        // Go Back Button ganz unten
         Button(
             onClick = { onFinish() },
             shape = RoundedCornerShape(50),

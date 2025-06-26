@@ -1,1 +1,3 @@
 This app was created for our university class. In this app you can create your own workout routine by clicking on the +-button and choosing one of 5 exercises. Afterwards u can adjust the time u want to spend on each exercise. After u start the countdown your routine will start and you will be able to see a countdown, a visual representation f the exercise and an explanation of what to do exactly. You will also see the progress bar and be able to leave at any moment. After each exercise you have a 20 second break to catch your breath! Enjoy :)
+
+The pictures are from canva.com and the explanations from wikipedia.org

@@ -77,98 +77,104 @@ fun CountdownScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Gray),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top) // Abstand reduziert
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
+        // Alle Inhalte, die oben stehen sollen
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black)
-                .padding(vertical = 32.dp),
-            contentAlignment = Alignment.Center
+                .weight(1f)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = if (isBreakTime) "Pause" else actualLabel,
-                fontSize = 40.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        }
-
-        val imageName = actualLabel.lowercase().replace(" ", "_")
-        val context = LocalContext.current
-        val imageResId = remember(imageName, context) {
-            context.resources.getIdentifier(imageName, "drawable", context.packageName)
-        }
-
-        if (imageResId != 0 && !isBreakTime) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(320.dp), // Höhe reduziert
-                contentAlignment = Alignment.BottomCenter
+                    .background(Color.Black)
+                    .padding(vertical = 32.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = imageResId),
-                    contentDescription = actualLabel,
+                Text(
+                    text = if (isBreakTime) "Pause" else actualLabel,
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+
+            val imageName = actualLabel.lowercase().replace(" ", "_")
+            val context = LocalContext.current
+            val imageResId = remember(imageName, context) {
+                context.resources.getIdentifier(imageName, "drawable", context.packageName)
+            }
+
+            if (imageResId != 0 && !isBreakTime) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(320.dp)
-                )
+                        .height(320.dp),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Image(
+                        painter = painterResource(id = imageResId),
+                        contentDescription = actualLabel,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(320.dp)
+                    )
 
+                    Text(
+                        text = when (actualLabel) {
+                            "Plank" -> "The most common plank is the forearm plank which is held in a push-up-like position, with the body's weight borne on forearms, elbows, and toes."
+                            "Jumping Jacks" -> "A jumping jack is performed by jumping to a position with the legs spread wide. The hands go overhead and then return to a position with the feet together and the arms at the sides."
+                            "Burpees" -> "Do a squat, jump into a plank and go back up"
+                            "Squats" -> "A squat is a strength exercise in which the trainee lowers their hips from a standing position and then stands back up."
+                            "Lunges" -> "A lunge can refer to any position of the human body where one leg is positioned forward with knee bent and foot flat on the ground while the other leg is positioned behind"
+                            else -> ""
+                        },
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .background(Color(0xAA000000))
+                            .padding(8.dp)
+                    )
+                }
+            }
+
+            Text(
+                text = formatTime(remainingSeconds),
+                fontSize = 110.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
-                    text = when (actualLabel) {
-                        "Plank" -> "The most common plank is the forearm plank which is held in a push-up-like position, with the body's weight borne on forearms, elbows, and toes."
-                        "Jumping Jacks" -> "A jumping jack is performed by jumping to a position with the legs spread wide. The hands go overhead and then return to a position with the feet together and the arms at the sides."
-                        "Burpees" -> "Do a squat, jump into a plank and go back up"
-                        "Squats" -> "A squat is a strength exercise in which the trainee lowers their hips from a standing position and then stands back up."
-                        "Lunges" -> "A lunge can refer to any position of the human body where one leg is positioned forward with knee bent and foot flat on the ground while the other leg is positioned behind"
-                        else -> ""
-                    },
+                    text = "Completed $exercisesCompleted of ${sessions.size} exercises",
                     color = Color.White,
-                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                LinearProgressIndicator(
+                    progress = exercisesCompleted / sessions.size.toFloat(),
                     modifier = Modifier
-                        .background(Color(0xAA000000))
-                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    color = Color.Cyan,
+                    trackColor = Color.DarkGray
                 )
             }
         }
 
-        Text(
-            text = formatTime(remainingSeconds),
-            fontSize = 110.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Completed $exercisesCompleted of ${sessions.size} exercises",
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            LinearProgressIndicator(
-                progress = exercisesCompleted / sessions.size.toFloat(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp),
-                color = Color.Cyan,
-                trackColor = Color.DarkGray
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp)) // Reduzierter Abstand
-
+        // Button immer ganz unten – wie im SetupScreen
         Button(
             onClick = { onFinish() },
             shape = RoundedCornerShape(50),

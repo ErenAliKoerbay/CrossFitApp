@@ -33,6 +33,7 @@ fun CountdownScreen(
     var actualLabel by remember { mutableStateOf(sessions[0].label) }
 
     val context = LocalContext.current
+
     fun playBeep() {
         val player = MediaPlayer.create(context, R.raw.beep_sound)
         player?.setOnCompletionListener { it.release() }
@@ -61,16 +62,14 @@ fun CountdownScreen(
             sessions[currentIndex].remainingSeconds
         }
 
-        // Sound am Anfang der Phase
-        playBeep()
+        playBeep() // Sound am Anfang
 
         while (remainingSeconds > 0 && isRunning) {
             delay(1000)
             remainingSeconds--
         }
 
-        // Sound am Ende der Phase
-        playBeep()
+        playBeep() // Sound am Ende
 
         if (remainingSeconds == 0) {
             if (isBreakTime) {
@@ -121,7 +120,24 @@ fun CountdownScreen(
                 context.resources.getIdentifier(imageName, "drawable", context.packageName)
             }
 
-            if (imageResId != 0 && !isBreakTime) {
+            if (isBreakTime) {
+                Text(
+                    text = formatTime(remainingSeconds),
+                    fontSize = 100.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Yellow,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 40.dp)
+                )
+                Text(
+                    text = "Time to rest",
+                    fontSize = 20.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else if (imageResId != 0) {
                 Text(
                     text = formatTime(remainingSeconds),
                     fontSize = 110.sp,
@@ -167,7 +183,7 @@ fun CountdownScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Statischer Fortschrittsbereich
+        // Fortschritt
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -190,7 +206,7 @@ fun CountdownScreen(
             )
         }
 
-        // Go Back Button ganz unten
+        // Go Back Button
         Button(
             onClick = { onFinish() },
             shape = RoundedCornerShape(50),
